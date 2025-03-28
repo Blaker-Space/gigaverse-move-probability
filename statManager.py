@@ -1,12 +1,5 @@
 import os
 
-def main():
-    userStats = welcomeUserGetStats();
-    #get stats for current opponent
-    #get highest probability play(userStats, opponentStats)
-    #output probabilities of each play
-
-
 def welcomeUserGetStats():
     print("Welcome to the Gigaverse Probability Calculator!\n")
     userStats = []
@@ -16,25 +9,18 @@ def welcomeUserGetStats():
         userStats = getCurrentUserStats()
     else:
         getNewUserStats()
-
-    getOpponentStats()
-
-
-
-
-        
-        
+   
 def getNewUserStats():
     print("It looks like this is your first time using my calculator, so let's get started!\n")
     print("Please enter your Gigaverse stats using the following format:\n")
     print("Start with attack first, then defense for each move. Go in the order" \
-            "of sword, shield, and then magic.")
-    print("Example: 4,0,0,4,2,2 = 4 attack for sword, 0 defense for sword," \
+            "of sword, shield, and then magic. Lastly, enter your starting health" \
+            " and starting armor.\n")
+    print("Example: 4,0,0,4,2,2,9,5 = 4 attack for sword, 0 defense for sword," \
             "0 attack for shield, 4 defense for shield," \
-            "2 attack for magic, and 2 defense for magic.\n")
-    userStats = updateStats();
-    
-        
+            "2 attack for magic, 2 defense for magic, 9 starting health, and 5 starting armor\n")
+    userStats = updateStats(True);
+       
 def getCurrentUserStats():
 
     machineName = os.path.basename(os.path.expanduser("~"))
@@ -51,6 +37,8 @@ def getCurrentUserStats():
     f"\tShield defense: {statArr[3]}\n"
     f"\tMagic attack: {statArr[4]}\n"
     f"\tMagic defense: {statArr[5]}\n"
+    f"\tStarting Health: {statArr[6]}\n"
+    f"\tStarting Armor: {statArr[7]}\n"
     ))
 
     yesNo = input("Is this still correct? (y/n): ").strip().lower()
@@ -59,19 +47,22 @@ def getCurrentUserStats():
         yesNo = input("Please enter 'y' or 'n': ").strip().lower()
 
     if yesNo == 'n':
-        statArr = updateStats()
+        statArr = updateStats(True)
     return statArr
     
-def updateStats():
-
+def updateStats(isPlayer):
+    statArr = []
     statsCorrect = False
-    print("Please enter your new stats: ")
+    if isPlayer:
+        print("Please enter your new stats: ")
+    else:
+        print("Please enter your opponent's stats: ")
     while statsCorrect != True:
         try:
             userInput = input().strip()
             enteredStats = list(map(int, userInput.split(",")))
-            if len(enteredStats) != 6:
-                raise ValueError("Please enter exactly 6 numbers separated by commas.")
+            if len(enteredStats) != 8:
+                raise ValueError("Please enter exactly 8 numbers separated by commas.")
             print((
                 f"You entered:\n"
                 f"\tSword attack: {enteredStats[0]}\n"
@@ -80,6 +71,8 @@ def updateStats():
                 f"\tShield defense: {enteredStats[3]}\n"
                 f"\tMagic attack: {enteredStats[4]}\n"
                 f"\tMagic defense: {enteredStats[5]}\n"
+                f"\tStarting Health: {enteredStats[6]}\n"
+                f"\tStarting Armor: {enteredStats[7]}\n"
             ))
             confirmation = input("Are these stats correct? (y/n): ").strip().lower()
             while confirmation not in ['y', 'n']:
@@ -89,8 +82,11 @@ def updateStats():
                 statsCorrect = True
                 break
             else:
-                print("Please re-enter your stats: ")
-            break
+                if isPlayer:
+                    print("Please re-enter your stats: ")
+                else:
+                    print("Please re-enter your opponent's stats: ")
+            
         except ValueError as e:
             print(f"Invalid input: {e}")
 
@@ -116,4 +112,12 @@ def uploadStats(statArr):
     
     with open(filePath, 'w') as file:
         file.write(",".join(map(str, statArr)))
-main()
+
+def getOpponentStats():
+    opponentStats = []
+    print("Please enter your opponent's stats using the same format as before:\n")
+    print("Example: 4,0,0,4,2,2,9,5 = 4 attack for sword, 0 defense for sword," \
+            "0 attack for shield, 4 defense for shield," \
+            "2 attack for magic, 2 defense for magic, 9 starting health, and 5 starting armor\n")
+    opponentStats = updateStats(False)
+    return opponentStats
